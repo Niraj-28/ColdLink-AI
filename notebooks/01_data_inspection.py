@@ -17,13 +17,13 @@ print("COLDLINK AI - DATA INSPECTION")
 print("=" * 80)
 print("\nLoading data from input_data.xlsx...")
 
-df = pd.read_excel('data/input_data.xlsx')
+df = pd.read_excel('../data/input_data.xlsx')
 
 print(f"\n✓ Data loaded successfully!")
 print(f"  Shape: {df.shape[0]:,} rows × {df.shape[1]} columns")
 
 # Save as CSV
-df.to_csv('data/input_data.csv', index=False)
+df.to_csv('../data/input_data.csv', index=False)
 print(f"✓ Saved as data/input_data.csv")
 
 # Basic Information

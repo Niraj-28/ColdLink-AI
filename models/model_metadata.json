@@ -1,0 +1,89 @@
+{
+  "best_model": "random_forest",
+  "best_model_metrics": {
+    "accuracy": 0.768137462876538,
+    "precision": 0.6632684584491814,
+    "recall": 0.9986046511627907,
+    "f1": 0.7971041395953221,
+    "roc_auc": 0.9414831476980008
+  },
+  "all_models_comparison": {
+    "logistic_regression": {
+      "accuracy": 0.3534153585065762,
+      "precision": 0.35201054713249835,
+      "recall": 0.4967441860465116,
+      "f1": 0.41203703703703703,
+      "roc_auc": 0.3544918006022567
+    },
+    "random_forest": {
+      "accuracy": 0.768137462876538,
+      "precision": 0.6632684584491814,
+      "recall": 0.9986046511627907,
+      "f1": 0.7971041395953221,
+      "roc_auc": 0.9414831476980008
+    },
+    "xgboost": {
+      "accuracy": 0.7679253288078065,
+      "precision": 0.6631644004944376,
+      "recall": 0.998139534883721,
+      "f1": 0.7968808020794653,
+      "roc_auc": 0.9535085984834744
+    },
+    "histgradientboosting": {
+      "accuracy": 0.7675010606703436,
+      "precision": 0.6624537607891492,
+      "recall": 0.9995348837209302,
+      "f1": 0.7968112717834631,
+      "roc_auc": 0.9479622138373908
+    }
+  },
+  "training_date": "2026-09-20T18:10:42.885267",
+  "train_size": 16605,
+  "val_size": 5054,
+  "test_size": 4714,
+  "num_features": 20,
+  "target_distribution": {
+    "train": {
+      "0": 8161,
+      "1": 8444
+    },
+    "test": {
+      "0": 2564,
+      "1": 2150
+    }
+  },
+  "feature_list": [
+    "thermal_shipper_temp_reading",
+    "room_temp_reading",
+    "room_humidity_reading",
+    "item_expiry_hours",
+    "ultra_low_temperature_freezer_hours",
+    "out_of_bound_temperature_hours",
+    "refrigeration_temperature_hours",
+    "hour",
+    "day_of_week",
+    "is_weekend",
+    "temp_diff",
+    "shipper_temp_too_high",
+    "shipper_temp_too_low",
+    "is_expired",
+    "near_expiry",
+    "has_oob_exposure",
+    "total_storage_time",
+    "location_encoded",
+    "current_hop_encoded",
+    "external_storage_encoded"
+  ],
+  "top_features": [
+    "location_encoded",
+    "ultra_low_temperature_freezer_hours",
+    "item_expiry_hours",
+    "total_storage_time",
+    "current_hop_encoded",
+    "temp_diff",
+    "out_of_bound_temperature_hours",
+    "thermal_shipper_temp_reading",
+    "refrigeration_temperature_hours",
+    "room_humidity_reading"
+  ]
+}
