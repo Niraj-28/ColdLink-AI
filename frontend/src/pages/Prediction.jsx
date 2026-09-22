@@ -6,14 +6,18 @@ import RiskBadge from '../components/RiskBadge';
 
 const Prediction = () => {
   const [formData, setFormData] = useState({
-    temperature: 5.0,
-    humidity: 60.0,
+    thermal_shipper_temp_reading: 5.0,
+    room_temp_reading: 22.0,
+    room_humidity_reading: 45.0,
+    item_expiry_hours: 120,
+    ultra_low_temperature_freezer_hours: 0,
+    out_of_bound_temperature_hours: 0,
+    refrigeration_temperature_hours: 24,
     location: 'Warehouse A',
-    transport_mode: 'Air',
-    vaccine_type: 'Type A',
-    quantity: 1000,
-    hours_in_transit: 12,
-    external_temperature: 25.0
+    current_hop: 'Distribution Center',
+    external_storage: 'Cold Room',
+    hour: 12,
+    day_of_week: 0
   });
 
   const [prediction, setPrediction] = useState(null);
@@ -47,14 +51,18 @@ const Prediction = () => {
 
   const handleReset = () => {
     setFormData({
-      temperature: 5.0,
-      humidity: 60.0,
+      thermal_shipper_temp_reading: 5.0,
+      room_temp_reading: 22.0,
+      room_humidity_reading: 45.0,
+      item_expiry_hours: 120,
+      ultra_low_temperature_freezer_hours: 0,
+      out_of_bound_temperature_hours: 0,
+      refrigeration_temperature_hours: 24,
       location: 'Warehouse A',
-      transport_mode: 'Air',
-      vaccine_type: 'Type A',
-      quantity: 1000,
-      hours_in_transit: 12,
-      external_temperature: 25.0
+      current_hop: 'Distribution Center',
+      external_storage: 'Cold Room',
+      hour: 12,
+      day_of_week: 0
     });
     setPrediction(null);
     setError(null);
@@ -86,12 +94,12 @@ const Prediction = () => {
               <div className="space-y-3 pl-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Storage Temperature (°C)
+                    Thermal Shipper Temperature (°C)
                   </label>
                   <input
                     type="number"
-                    name="temperature"
-                    value={formData.temperature}
+                    name="thermal_shipper_temp_reading"
+                    value={formData.thermal_shipper_temp_reading}
                     onChange={handleInputChange}
                     step="0.1"
                     required
@@ -102,12 +110,12 @@ const Prediction = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    External Temperature (°C)
+                    Room Temperature (°C)
                   </label>
                   <input
                     type="number"
-                    name="external_temperature"
-                    value={formData.external_temperature}
+                    name="room_temp_reading"
+                    value={formData.room_temp_reading}
                     onChange={handleInputChange}
                     step="0.1"
                     required
@@ -117,12 +125,12 @@ const Prediction = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Humidity (%)
+                    Room Humidity (%)
                   </label>
                   <input
                     type="number"
-                    name="humidity"
-                    value={formData.humidity}
+                    name="room_humidity_reading"
+                    value={formData.room_humidity_reading}
                     onChange={handleInputChange}
                     step="0.1"
                     min="0"
@@ -134,9 +142,82 @@ const Prediction = () => {
               </div>
             </div>
 
-            {/* Shipment Information */}
+            {/* Time/Storage Information */}
             <div>
-              <h4 className="font-medium text-sm text-gray-700 mb-3">Shipment Information</h4>
+              <h4 className="font-medium text-sm text-gray-700 mb-3">Storage & Time Information</h4>
+              <div className="space-y-3 pl-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Hours Until Expiry
+                  </label>
+                  <input
+                    type="number"
+                    name="item_expiry_hours"
+                    value={formData.item_expiry_hours}
+                    onChange={handleInputChange}
+                    min="0"
+                    required
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Hours until vaccine expires</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Ultra-Low Freezer Hours
+                  </label>
+                  <input
+                    type="number"
+                    name="ultra_low_temperature_freezer_hours"
+                    value={formData.ultra_low_temperature_freezer_hours}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.1"
+                    required
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Time in ultra-low temperature storage</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Refrigeration Hours
+                  </label>
+                  <input
+                    type="number"
+                    name="refrigeration_temperature_hours"
+                    value={formData.refrigeration_temperature_hours}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.1"
+                    required
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Time in standard refrigeration (2-8°C)</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Out of Bounds Hours
+                  </label>
+                  <input
+                    type="number"
+                    name="out_of_bound_temperature_hours"
+                    value={formData.out_of_bound_temperature_hours}
+                    onChange={handleInputChange}
+                    min="0"
+                    step="0.1"
+                    required
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Time outside recommended temperature range</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Location Information */}
+            <div>
+              <h4 className="font-medium text-sm text-gray-700 mb-3">Location Information</h4>
               <div className="space-y-3 pl-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -153,79 +234,84 @@ const Prediction = () => {
                     <option value="Warehouse B">Warehouse B</option>
                     <option value="Distribution Center">Distribution Center</option>
                     <option value="Transit Hub">Transit Hub</option>
+                    <option value="Regional Center">Regional Center</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Transport Mode
+                    Current Hop
                   </label>
                   <select
-                    name="transport_mode"
-                    value={formData.transport_mode}
+                    name="current_hop"
+                    value={formData.current_hop}
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="Air">Air</option>
-                    <option value="Road">Road</option>
-                    <option value="Sea">Sea</option>
-                    <option value="Rail">Rail</option>
+                    <option value="Distribution Center">Distribution Center</option>
+                    <option value="Regional Warehouse">Regional Warehouse</option>
+                    <option value="Transit Hub">Transit Hub</option>
+                    <option value="Final Destination">Final Destination</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Hours in Transit
+                    External Storage Type
                   </label>
-                  <input
-                    type="number"
-                    name="hours_in_transit"
-                    value={formData.hours_in_transit}
+                  <select
+                    name="external_storage"
+                    value={formData.external_storage}
                     onChange={handleInputChange}
-                    min="0"
                     required
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  >
+                    <option value="Cold Room">Cold Room</option>
+                    <option value="Freezer">Freezer</option>
+                    <option value="Refrigerated Container">Refrigerated Container</option>
+                    <option value="Thermal Shipper">Thermal Shipper</option>
+                  </select>
                 </div>
               </div>
             </div>
 
-            {/* Vaccine Details */}
+            {/* Time Context (Optional) */}
             <div>
-              <h4 className="font-medium text-sm text-gray-700 mb-3">Vaccine Details</h4>
-              <div className="space-y-3 pl-2">
+              <h4 className="font-medium text-sm text-gray-700 mb-3">Time Context (Optional)</h4>
+              <div className="grid grid-cols-2 gap-3 pl-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Vaccine Type
-                  </label>
-                  <select
-                    name="vaccine_type"
-                    value={formData.vaccine_type}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="Type A">Type A</option>
-                    <option value="Type B">Type B</option>
-                    <option value="Type C">Type C</option>
-                    <option value="mRNA">mRNA</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Quantity (units)
+                    Hour of Day (0-23)
                   </label>
                   <input
                     type="number"
-                    name="quantity"
-                    value={formData.quantity}
+                    name="hour"
+                    value={formData.hour}
                     onChange={handleInputChange}
-                    min="1"
-                    required
+                    min="0"
+                    max="23"
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Day of Week (0=Mon)
+                  </label>
+                  <select
+                    name="day_of_week"
+                    value={formData.day_of_week}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="0">Monday</option>
+                    <option value="1">Tuesday</option>
+                    <option value="2">Wednesday</option>
+                    <option value="3">Thursday</option>
+                    <option value="4">Friday</option>
+                    <option value="5">Saturday</option>
+                    <option value="6">Sunday</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -267,10 +353,10 @@ const Prediction = () => {
               {/* Risk Score */}
               <div className="text-center p-6 bg-gradient-to-br from-gray-50 to-white rounded-lg border-2">
                 <div className="text-sm text-gray-600 mb-2">Failure Risk Probability</div>
-                <div className={`text-5xl font-bold mb-3 ${getRiskColor(prediction.risk_score)}`}>
-                  {(prediction.risk_score * 100).toFixed(1)}%
+                <div className={`text-5xl font-bold mb-3 ${getRiskColor(prediction.risk_probability || 0)}`}>
+                  {((prediction.risk_probability || 0) * 100).toFixed(1)}%
                 </div>
-                <RiskBadge level={getRiskLevel(prediction.risk_score)} />
+                <RiskBadge level={prediction.risk_level || getRiskLevel(prediction.risk_probability || 0)} />
               </div>
 
               {/* Key Metrics */}
@@ -282,26 +368,19 @@ const Prediction = () => {
                   </div>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <div className="text-xs text-gray-600">Risk Level</div>
+                  <div className="text-xs text-gray-600">Risk Category</div>
                   <div className="text-lg font-semibold">
-                    {getRiskLevel(prediction.risk_score)}
+                    {prediction.risk_category || prediction.risk_level || getRiskLevel(prediction.risk_probability || 0)}
                   </div>
                 </div>
               </div>
 
-              {/* Recommendations */}
-              {prediction.recommendations && prediction.recommendations.length > 0 && (
+              {/* Recommendation */}
+              {prediction.recommendation && (
                 <div>
-                  <h4 className="font-semibold mb-3 text-sm">Recommendations</h4>
-                  <div className="space-y-2">
-                    {prediction.recommendations.map((rec, idx) => (
-                      <div key={idx} className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
-                        <div className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                          {idx + 1}
-                        </div>
-                        <div className="text-sm text-gray-700 flex-1">{rec}</div>
-                      </div>
-                    ))}
+                  <h4 className="font-semibold mb-3 text-sm">Recommendation</h4>
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="text-sm text-gray-700">{prediction.recommendation}</div>
                   </div>
                 </div>
               )}
@@ -315,9 +394,9 @@ const Prediction = () => {
                       <div key={idx} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                         <span className="text-sm text-gray-700">{factor.feature}</span>
                         <span className={`text-sm font-semibold ${
-                          factor.impact > 0 ? 'text-red-600' : 'text-green-600'
+                          factor.contribution > 0 ? 'text-red-600' : 'text-green-600'
                         }`}>
-                          {factor.impact > 0 ? '+' : ''}{(factor.impact * 100).toFixed(1)}%
+                          {factor.contribution > 0 ? '+' : ''}{(factor.contribution).toFixed(3)}
                         </span>
                       </div>
                     ))}
@@ -329,7 +408,7 @@ const Prediction = () => {
               <div className="pt-4 border-t text-xs text-gray-500">
                 <div className="flex justify-between">
                   <span>Model:</span>
-                  <span className="font-medium">{prediction.model || 'Random Forest'}</span>
+                  <span className="font-medium">Random Forest Classifier</span>
                 </div>
               </div>
             </div>

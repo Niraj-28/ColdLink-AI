@@ -612,10 +612,17 @@ def add_basic_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add basic derived features needed for prediction"""
     df = df.copy()
     
-    # Add missing features with default values
-    if 'is_weekend' not in df.columns:
-        df['is_weekend'] = (df.get('day_of_week', 0) >= 5).astype(int)
+    # Time-based features (use provided values or defaults)
+    if 'hour' not in df.columns:
+        df['hour'] = 12  # Default to noon
+    if 'day_of_week' not in df.columns:
+        df['day_of_week'] = 0  # Default to Monday
     
+    # Derived time features
+    if 'is_weekend' not in df.columns:
+        df['is_weekend'] = (df['day_of_week'] >= 5).astype(int)
+    
+    # Temperature features
     if 'temp_diff' not in df.columns:
         df['temp_diff'] = df['room_temp_reading'] - df['thermal_shipper_temp_reading']
     
@@ -666,6 +673,12 @@ def add_basic_features(df: pd.DataFrame) -> pd.DataFrame:
         df['humidity_too_high'] = (df['room_humidity_reading'] > 60).astype(int)
     if 'humidity_too_low' not in df.columns:
         df['humidity_too_low'] = (df['room_humidity_reading'] < 30).astype(int)
+    
+    # Room temperature indicators
+    if 'room_temp_too_high' not in df.columns:
+        df['room_temp_too_high'] = (df['room_temp_reading'] > 25).astype(int)
+    if 'room_temp_too_low' not in df.columns:
+        df['room_temp_too_low'] = (df['room_temp_reading'] < 15).astype(int)
     
     # Fill any other missing lag/rolling features with 0
     for col in feature_names['all_features']:
