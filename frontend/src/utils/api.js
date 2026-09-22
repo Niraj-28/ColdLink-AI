@@ -38,4 +38,6 @@ export const apiService = {
   getRecommendation: (batchId) => api.get(`/api/recommendation/${batchId}`),
 };
 
+// Export both api instance and apiService for convenience
+export { api };
 export default api;
