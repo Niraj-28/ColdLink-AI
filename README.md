@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18.2-blue.svg)](https://reactjs.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.64+-red.svg)](https://streamlit.io/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Status](https://img.shields.io/badge/Status-Complete-brightgreen.svg)](PROJECT_COMPLETION_SUMMARY.md)
 
@@ -45,33 +45,59 @@ A machine learning system that:
 ```
 ColdLink-AI/
 ├── data/                   # Dataset files
-│   ├── input_data.xlsx     # Original dataset
-│   ├── input_data.csv      # Converted CSV
-│   └── engineered_features.csv  # Processed features
-├── notebooks/              # Jupyter notebooks
+│   ├── input_data.xlsx     # Original dataset (26,674 rows)
+│   └── input_data.csv      # Converted CSV
+├── notebooks/              # Analysis notebooks
 │   ├── 01_data_inspection.py
 │   ├── 02_exploratory_data_analysis.ipynb
 │   ├── 03_target_and_feature_engineering.ipynb
 │   └── 04_model_training_evaluation.ipynb
-├── models/                 # Trained models
-│   ├── best_model.pkl
+├── models/                 # Trained ML models
+│   ├── best_model.pkl      # Random Forest (F1: 79.7%, ROC-AUC: 94.1%)
 │   ├── scaler.pkl
 │   ├── label_encoders.pkl
-│   └── shap_explainer.pkl
-├── backend/                # FastAPI backend
+│   ├── feature_names.pkl
+│   ├── shap_explainer.pkl
+│   └── model_metadata.json
+├── backend/                # FastAPI backend (12 endpoints)
 │   ├── main.py            # API server
-│   ├── requirements.txt
-│   └── README.md
-├── frontend/               # React frontend
-│   ├── src/
-│   ├── public/
-│   ├── package.json
-│   └── README.md
-├── reports/                # Analysis reports
+│   └── requirements.txt
+├── streamlit_app/          # Streamlit frontend (5 pages)
+│   ├── app.py             # Main application
+│   ├── pages/
+│   │   ├── dashboard.py
+│   │   ├── prediction.py
+│   │   ├── analytics.py
+│   │   ├── batch_analysis.py
+│   │   └── live_risk.py
+│   ├── .streamlit/config.toml
+│   └── requirements.txt
 └── docs/                   # Documentation
+    ├── README.md
+    ├── PROJECT_REPORT.md
+    ├── STREAMLIT_GUIDE.md
+    ├── HOW_TO_RUN.md
+    └── COMPLETE_IMPLEMENTATION_GUIDE.md
 ```
 
 ## 🚀 Quick Start
+
+```bash
+# 1. Start Backend API (Terminal 1)
+cd backend
+python main.py
+# Backend runs on http://localhost:8000
+
+# 2. Start Streamlit Frontend (Terminal 2)
+cd streamlit_app
+python -m streamlit run app.py
+# Frontend opens at http://localhost:8501
+```
+
+**📚 Documentation:**
+- [HOW_TO_RUN.md](HOW_TO_RUN.md) - Complete setup guide
+- [STREAMLIT_GUIDE.md](STREAMLIT_GUIDE.md) - Streamlit frontend documentation
+- [PROJECT_REPORT.md](PROJECT_REPORT.md) - Technical project report
 
 ### Prerequisites
 - Python 3.10+
@@ -88,38 +114,48 @@ cd ColdLink-AI
 
 ```bash
 # Install Python dependencies
+cd backend
 pip install -r requirements.txt
 
-# Run Jupyter notebooks to train models (in order)
-# Or use pre-trained models if available
-jupyter notebook notebooks/
-
 # Start backend server
-cd backend
 python main.py
 ```
 
 Backend will be available at `http://localhost:8000`
 
-### 3. Setup Frontend
+### 3. Setup Streamlit Frontend
 
 ```bash
-cd frontend
+cd streamlit_app
 
-# Install dependencies
-npm install
+# Install dependencies (if not already installed)
+pip install -r requirements.txt
 
-# Start development server
-npm run dev
+# Start Streamlit app
+python -m streamlit run app.py
 ```
 
-Frontend will be available at `http://localhost:3000`
+Streamlit frontend will open automatically at `http://localhost:8501`
 
 ### 4. Access Application
 
-- **Frontend Dashboard**: http://localhost:3000
+- **Streamlit Dashboard**: http://localhost:8501
 - **API Documentation**: http://localhost:8000/docs
 - **API Interactive Docs**: http://localhost:8000/redoc
+
+## 🎨 Streamlit Frontend Features
+
+### Five Interactive Pages:
+
+1. **🏠 Dashboard** - System overview with real-time metrics, risk distribution charts, and trend analysis
+2. **🔮 Prediction** - Interactive 12-field form for single batch risk prediction with SHAP explanations
+3. **📊 Analytics** - Model performance comparison, feature importance visualization, detailed metrics
+4. **📦 Batch Analysis** - Filter and monitor batches with expandable details and export options
+5. **📡 Live Risk Monitor** - Real-time alerts with auto-refresh, critical/warning notifications, system status
+
+**Tech Stack**: Streamlit 1.64+, Plotly 7.1+, Pandas, Requests
+
+See [STREAMLIT_GUIDE.md](STREAMLIT_GUIDE.md) for complete documentation.
 
 ## 📈 Machine Learning Pipeline
 
