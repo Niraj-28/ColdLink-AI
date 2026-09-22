@@ -90,8 +90,8 @@ def load_models_and_data():
         shap_data = joblib.load('../models/shap_explainer.pkl')
         print("✓ SHAP data loaded")
         
-        # Load engineered dataset
-        df_data = pd.read_csv('../data/engineered_features.csv')
+        # Load original dataset for batch information (has location, current_hop, external_storage)
+        df_data = pd.read_csv('../data/input_data.csv')
         df_data['date'] = pd.to_datetime(df_data['date'])
         print(f"✓ Dataset loaded: {df_data.shape}")
         
@@ -222,20 +222,29 @@ async def get_all_batches(
     risk_level: Optional[str] = None,
     location: Optional[str] = None
 ):
-    """Get all batches with optional filtering"""
+    """Get all batches with basic information (simplified version)"""
     if df_data is None:
         raise HTTPException(status_code=500, detail="Data not loaded")
     
     # Get latest observation for each batch
     df_latest = df_data.sort_values('date').groupby('batch_id').last().reset_index()
     
-    # Prepare features and predict
-    X_latest = prepare_features_for_prediction(df_latest)
-    risk_probs = models['best'].predict_proba(X_latest)[:, 1]
+    # Simple risk calculation based on temperature and expiry
+    def simple_risk_score(row):
+        risk = 0.0
+        # Temperature risk
+        if row['thermal_shipper_temp_reading'] < 2 or row['thermal_shipper_temp_reading'] > 8:
+            risk += 0.4
+        # Expiry risk
+        if row['item_expiry_hours'] < 48:
+            risk += 0.3
+        # Out of bound exposure
+        if row['out_of_bound_temperature_hours'] > 5:
+            risk += 0.3
+        return min(risk, 1.0)
     
-    # Add predictions to dataframe
-    df_latest['risk_probability'] = risk_probs
-    df_latest['risk_level'] = df_latest['risk_probability'].apply(get_risk_level)
+    df_latest['risk_score'] = df_latest.apply(simple_risk_score, axis=1)
+    df_latest['risk_level'] = df_latest['risk_score'].apply(lambda x: 'HIGH' if x >= 0.6 else ('MEDIUM' if x >= 0.3 else 'LOW'))
     
     # Apply filters
     if risk_level:
@@ -245,7 +254,7 @@ async def get_all_batches(
         df_latest = df_latest[df_latest['location'] == location]
     
     # Sort by risk (highest first)
-    df_latest = df_latest.sort_values('risk_probability', ascending=False)
+    df_latest = df_latest.sort_values('risk_score', ascending=False)
     
     # Pagination
     total = len(df_latest)
@@ -254,17 +263,29 @@ async def get_all_batches(
     # Format response
     batches = []
     for _, row in df_page.iterrows():
+        # Check if batch is expired or discarded
+        is_expired = row['item_expiry_hours'] <= 0
+        is_discarded = row['out_of_bound_temperature_hours'] > 24
+        
         batches.append({
             "batch_id": row['batch_id'],
+            "timestamp": row['date'].isoformat() if hasattr(row['date'], 'isoformat') else str(row['date']),
             "location": row['location'],
             "current_hop": row['current_hop'],
-            "storage": row['external_storage'],
+            "external_storage": row['external_storage'],
             "temperature": float(row['thermal_shipper_temp_reading']),
             "humidity": float(row['room_humidity_reading']),
+            "external_temperature": float(row['room_temp_reading']),
+            "hours_in_transit": float(row['refrigeration_temperature_hours']),
             "expiry_hours": float(row['item_expiry_hours']),
-            "risk_probability": float(row['risk_probability']),
+            "oob_hours": float(row['out_of_bound_temperature_hours']),
+            "risk_score": float(row['risk_score']),
             "risk_level": row['risk_level'],
-            "recommended_action": get_recommendation_for_risk(row['risk_level'], row['item_expiry_hours'])
+            "is_expired": bool(is_expired),
+            "is_discarded": bool(is_discarded),
+            "vaccine_type": "Type A",  # Default since not in data
+            "quantity": 1000,  # Default since not in data
+            "transport_mode": "Air"  # Default since not in data
         })
     
     return {
