@@ -21,7 +21,7 @@ const BatchAnalysis = () => {
   const fetchBatches = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/batches');
+      const response = await api.get('/api/batches');
       setBatches(response.data.batches || []);
       setError(null);
     } catch (err) {
@@ -39,7 +39,7 @@ const BatchAnalysis = () => {
       const batch = batches.find(b => b.batch_id === batchId);
       
       // Get SHAP explanation
-      const shapResponse = await api.post('/explain', {
+      const shapResponse = await api.post('/api/explain', {
         temperature: batch.temperature || 5.0,
         humidity: batch.humidity || 60.0,
         location: batch.location || 'Warehouse A',

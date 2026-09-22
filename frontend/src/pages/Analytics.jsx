@@ -20,9 +20,9 @@ const Analytics = () => {
       setLoading(true);
       
       const [metricsRes, featuresRes, trendRes] = await Promise.all([
-        api.get('/model-metrics'),
-        api.get('/feature-importance'),
-        api.get('/risk-trend')
+        api.get('/api/model-metrics'),
+        api.get('/api/feature-importance'),
+        api.get('/api/risk-trend')
       ]);
 
       setMetrics(metricsRes.data);

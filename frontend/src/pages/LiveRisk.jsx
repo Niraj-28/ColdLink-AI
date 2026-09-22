@@ -28,7 +28,7 @@ const LiveRisk = () => {
   const fetchBatches = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/batches');
+      const response = await api.get('/api/batches');
       setBatches(response.data.batches || []);
       setError(null);
     } catch (err) {

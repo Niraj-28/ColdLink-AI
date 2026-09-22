@@ -35,7 +35,7 @@ const Prediction = () => {
       setLoading(true);
       setError(null);
       
-      const response = await api.post('/predict', formData);
+      const response = await api.post('/api/predict', formData);
       setPrediction(response.data);
     } catch (err) {
       setError(err.response?.data?.detail || 'Failed to generate prediction');

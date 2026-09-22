@@ -183,25 +183,32 @@ async def get_statistics():
     total_observations = len(df_data)
     total_batches = df_data['batch_id'].nunique()
     
-    # Calculate risk distribution
+    # Calculate risk distribution using simple rules (same as batches endpoint)
     df_latest = df_data.sort_values('date').groupby('batch_id').last().reset_index()
     
-    # Predict risk for latest observations
-    X_latest = prepare_features_for_prediction(df_latest)
-    risk_probs = models['best'].predict_proba(X_latest)[:, 1]
+    # Simple risk calculation
+    def simple_risk_score(row):
+        risk = 0.0
+        if row['thermal_shipper_temp_reading'] < 2 or row['thermal_shipper_temp_reading'] > 8:
+            risk += 0.4
+        if row['item_expiry_hours'] < 48:
+            risk += 0.3
+        if row['out_of_bound_temperature_hours'] > 5:
+            risk += 0.3
+        return min(risk, 1.0)
     
-    high_risk = (risk_probs >= RISK_THRESHOLDS['high']).sum()
-    medium_risk = ((risk_probs >= RISK_THRESHOLDS['medium']) & (risk_probs < RISK_THRESHOLDS['high'])).sum()
-    low_risk = ((risk_probs >= RISK_THRESHOLDS['low']) & (risk_probs < RISK_THRESHOLDS['medium'])).sum()
-    safe = (risk_probs < RISK_THRESHOLDS['low']).sum()
+    df_latest['risk_score'] = df_latest.apply(simple_risk_score, axis=1)
+    
+    high_risk = (df_latest['risk_score'] >= 0.6).sum()
+    medium_risk = ((df_latest['risk_score'] >= 0.3) & (df_latest['risk_score'] < 0.6)).sum()
+    low_risk = (df_latest['risk_score'] < 0.3).sum()
     
     return {
         "total_observations": int(total_observations),
         "total_batches": int(total_batches),
-        "high_risk_batches": int(high_risk),
-        "medium_risk_batches": int(medium_risk),
-        "low_risk_batches": int(low_risk),
-        "safe_batches": int(safe),
+        "high_risk_count": int(high_risk),
+        "medium_risk_count": int(medium_risk),
+        "low_risk_count": int(low_risk),
         "avg_temperature": float(df_data['thermal_shipper_temp_reading'].mean()),
         "avg_humidity": float(df_data['room_humidity_reading'].mean()),
         "date_range": {
