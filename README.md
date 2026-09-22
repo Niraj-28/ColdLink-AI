@@ -6,6 +6,9 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green.svg)](https://fastapi.tiangolo.com/)
 [![React](https://img.shields.io/badge/React-18.2-blue.svg)](https://reactjs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Complete-brightgreen.svg)](PROJECT_COMPLETION_SUMMARY.md)
+
+> **🎉 Project Status: COMPLETE** | 25/25 Tasks ✅ | F1: 79.7% | ROC-AUC: 94.1%
 
 ColdLink AI is an advanced machine learning system designed to predict cold chain failures in vaccine shipments. By analyzing temperature, humidity, storage conditions, and temporal patterns, our AI models can identify at-risk batches before critical failures occur, ensuring vaccine integrity and patient safety.
 
@@ -319,6 +322,30 @@ CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
 npm run build
 # Deploy dist/ folder
 ```
+
+## 📚 Documentation
+
+Comprehensive documentation is available in the following files:
+
+### Core Documentation
+- **[README.md](README.md)** - This file: Quick start, setup, and overview
+- **[PROJECT_COMPLETION_SUMMARY.md](PROJECT_COMPLETION_SUMMARY.md)** - Complete project summary with all achievements ⭐
+- **[PROJECT_REPORT.md](PROJECT_REPORT.md)** - Detailed technical report (14 sections)
+- **[FACULTY_QA.md](FACULTY_QA.md)** - 40 Q&A for faculty review
+
+### Testing Documentation
+- **[TEST_RESULTS.md](TEST_RESULTS.md)** - ML pipeline testing results
+- **[INTEGRATION_TEST_RESULTS.md](INTEGRATION_TEST_RESULTS.md)** - Frontend-backend integration tests
+
+### Component Documentation
+- **[backend/README.md](backend/README.md)** - Backend API documentation
+- **[frontend/README.md](frontend/README.md)** - Frontend setup and structure
+
+### Quick Links
+- 🚀 **Getting Started**: See [Quick Start](#-quick-start) above
+- 📊 **Model Performance**: F1: 79.7%, ROC-AUC: 94.1% (Random Forest)
+- 🔗 **API Docs**: http://localhost:8000/docs (when server running)
+- 💻 **Live Demo**: http://localhost:3001 (after setup)
 
 ## 🤝 Contributing
 
