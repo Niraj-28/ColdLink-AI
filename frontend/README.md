@@ -1,160 +1,134 @@
-# ColdLink AI - Frontend
+# ColdLink AI - React Frontend
 
-React-based frontend application for the ColdLink AI cold chain prediction system.
+Modern React frontend for ColdLink AI vaccine cold chain monitoring system.
+
+## Features
+
+- **Dashboard**: Real-time overview with statistics, risk distribution charts, and trend analysis
+- **Prediction**: Interactive form for risk assessment with SHAP explanations
+- **Batch Analysis**: Comprehensive batch monitoring with filters and detailed views
+- **Analytics**: Model performance metrics and feature importance visualization
+- **Live Risk Monitor**: Real-time alerts with auto-refresh capabilities
 
 ## Tech Stack
 
-- **React 18** - UI framework
-- **Vite** - Build tool and dev server
-- **React Router** - Client-side routing
-- **Tailwind CSS** - Utility-first CSS framework
-- **Axios** - HTTP client
-- **Recharts** - Data visualization
-- **Lucide React** - Icon library
+- React 18 with TypeScript
+- Vite for fast development and building
+- Tailwind CSS for styling
+- Recharts for data visualization
+- React Router for navigation
+- Axios for API communication
+
+## Prerequisites
+
+- Node.js 16+ 
+- npm or yarn
+- Backend API running on http://localhost:8000
+
+## Installation
+
+```bash
+# Install dependencies
+npm install
+```
+
+## Development
+
+```bash
+# Start development server
+npm run dev
+
+# Application will be available at http://localhost:3000
+```
+
+## Building for Production
+
+```bash
+# Create production build
+npm run build
+
+# Preview production build
+npm run preview
+```
 
 ## Project Structure
 
 ```
 frontend/
-├── public/              # Static assets
 ├── src/
 │   ├── components/      # Reusable UI components
-│   │   ├── Layout.jsx
-│   │   ├── StatCard.jsx
-│   │   ├── RiskBadge.jsx
-│   │   ├── LoadingSpinner.jsx
-│   │   └── ErrorMessage.jsx
+│   │   ├── Layout.tsx
+│   │   ├── StatsCard.tsx
+│   │   ├── LoadingSpinner.tsx
+│   │   └── ErrorMessage.tsx
 │   ├── pages/          # Page components
-│   │   ├── Overview.jsx
-│   │   ├── LiveRisk.jsx
-│   │   ├── BatchAnalysis.jsx
-│   │   ├── Prediction.jsx
-│   │   ├── Analytics.jsx
-│   │   ├── ModelPerformance.jsx
-│   │   ├── AIInsights.jsx
-│   │   └── About.jsx
+│   │   ├── Dashboard.tsx
+│   │   ├── Prediction.tsx
+│   │   ├── BatchAnalysis.tsx
+│   │   ├── Analytics.tsx
+│   │   └── LiveRisk.tsx
+│   ├── services/       # API services
+│   │   └── api.ts
+│   ├── types/          # TypeScript types
+│   │   └── index.ts
 │   ├── utils/          # Utility functions
-│   │   ├── api.js      # API client
-│   │   └── helpers.js  # Helper functions
-│   ├── styles/         # Global styles
-│   │   └── index.css   # Tailwind imports
-│   ├── App.jsx         # Main app component
-│   └── main.jsx        # Entry point
-├── index.html
-├── vite.config.js
+│   │   └── helpers.ts
+│   ├── App.tsx         # Main app component
+│   ├── main.tsx        # Entry point
+│   └── index.css       # Global styles
+├── public/             # Static assets
+├── package.json
+├── vite.config.ts
 ├── tailwind.config.js
-└── package.json
+└── tsconfig.json
 ```
-
-## Setup
-
-1. Install dependencies:
-```bash
-npm install
-```
-
-2. Create `.env` file (optional):
-```env
-VITE_API_URL=http://localhost:8000
-```
-
-3. Start development server:
-```bash
-npm run dev
-```
-
-The app will be available at `http://localhost:3000`
-
-## Build for Production
-
-```bash
-npm run build
-```
-
-Built files will be in the `dist/` directory.
-
-## Preview Production Build
-
-```bash
-npm run preview
-```
-
-## Pages
-
-### Overview
-- Dashboard with key statistics
-- Risk distribution visualization
-- System status
-- Quick action links
-
-### Live Risk
-- Real-time batch monitoring
-- Search and filter functionality
-- Sortable table
-- Pagination
-
-### Batch Analysis
-- Detailed batch information
-- Temperature and humidity timelines
-- Risk probability timeline
-- SHAP explanations
-- Recommendations
-
-### Prediction
-- Interactive form for new predictions
-- Real-time risk assessment
-- Risk factors display
-- Actionable recommendations
-
-### Analytics
-- Risk trends over time
-- Distribution by location and storage
-- Comparative analysis
-
-### Model Performance
-- Model comparison metrics
-- ROC and PR curves
-- Confusion matrices
-
-### AI Insights
-- SHAP feature importance
-- Global explanations
-- Model interpretability
-
-### About
-- Project information
-- Technical stack
-- Mission statement
 
 ## API Integration
 
-The frontend connects to the FastAPI backend through the API service (`src/utils/api.js`).
+The frontend communicates with the FastAPI backend through the API service layer (`src/services/api.ts`). Ensure the backend is running before starting the frontend.
 
-All API calls are proxied through Vite dev server to avoid CORS issues:
-- Frontend: `http://localhost:3000`
-- Backend: `http://localhost:8000`
-- Proxy: `/api/*` → `http://localhost:8000/api/*`
+Backend must be available at: `http://localhost:8000`
 
-## Design System
+## Environment Variables
 
-### Colors
-- **Primary**: Blue (`primary-*`)
-- **Accent**: Teal (`teal-*`)
-- **Risk Levels**:
-  - Critical: Red
-  - High: Orange
-  - Medium: Yellow
-  - Low: Green
+Create a `.env` file if you need to customize the API URL:
 
-### Components
-- Cards with shadow-md
-- Responsive grid layouts
-- Clean, minimal design
-- Professional healthcare aesthetic
+```
+VITE_API_URL=http://localhost:8000
+```
 
-## Development
+## Features Overview
 
-- Hot Module Replacement (HMR) enabled
-- ESLint configuration for code quality
-- PostCSS with Tailwind CSS processing
-- Fast refresh for instant updates
+### Dashboard
+- Key statistics cards
+- Risk distribution pie chart
+- Risk trend over time
+- Risk by location analysis
+
+### Prediction
+- 12-field input form
+- Real-time risk prediction
+- SHAP feature importance
+- Actionable recommendations
+
+### Batch Analysis
+- Searchable and filterable batch list
+- Expandable batch details
+- Risk level indicators
+- Temperature and expiry monitoring
+
+### Analytics
+- Model performance metrics
+- Model comparison charts
+- Feature importance ranking
+- Training information
+
+### Live Risk Monitor
+- Auto-refreshing dashboard
+- Critical batch alerts
+- Real-time status monitoring
+- Batch status table
+
+## License
+
+MIT
