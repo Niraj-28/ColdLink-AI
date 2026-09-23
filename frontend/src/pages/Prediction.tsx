@@ -392,11 +392,18 @@ const Prediction = () => {
 
                 {/* Recommendation */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-blue-900 flex items-center mb-2 text-sm">
+                  <h4 className="font-semibold text-blue-900 flex items-center mb-3 text-sm">
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Recommendation
+                    Recommendations
                   </h4>
-                  <p className="text-sm text-blue-800 leading-relaxed">{prediction.recommendation}</p>
+                  <ul className="space-y-2">
+                    {prediction.recommendation.split(' | ').map((rec, index) => (
+                      <li key={index} className="flex items-start text-sm text-blue-900">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mt-1.5 mr-2.5 flex-shrink-0"></span>
+                        <span className="leading-relaxed">{rec.trim()}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
 

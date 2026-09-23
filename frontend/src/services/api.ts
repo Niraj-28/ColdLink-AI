@@ -11,7 +11,8 @@ import type {
   RiskTrend,
 } from '../types';
 
-const API_BASE_URL = 'http://localhost:8000';
+// Use relative URL since Vite proxy will forward to backend
+const API_BASE_URL = '';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

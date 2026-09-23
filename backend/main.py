@@ -51,12 +51,23 @@ metadata = {}
 df_data = None
 shap_data = {}
 
+# Cache for expensive computations
+_cache = {
+    'risk_summary': None,
+    'risk_trend': None,
+    'statistics': None,
+    'cache_time': None
+}
+
 # Risk thresholds (configurable)
 RISK_THRESHOLDS = {
     'low': 0.3,
     'medium': 0.6,
     'high': 0.85
 }
+
+# Cache duration in seconds (5 minutes)
+CACHE_DURATION = 300
 
 
 def load_models_and_data():
@@ -188,6 +199,17 @@ async def startup_event():
     print("COLDLINK AI - BACKEND STARTUP")
     print("="*70 + "\n")
     load_models_and_data()
+    
+    # Pre-compute dashboard data for faster initial load
+    print("\n📊 Pre-computing dashboard data for optimal performance...")
+    try:
+        # Trigger all endpoints to populate cache
+        await get_statistics()
+        await get_risk_summary()
+        await get_risk_trend()
+        print("✅ Dashboard data pre-computed and cached!\n")
+    except Exception as e:
+        print(f"⚠️  Could not pre-compute dashboard data: {e}\n")
     print("\n" + "="*70)
     print("✓ Server ready to accept requests")
     print("="*70 + "\n")
@@ -448,6 +470,12 @@ async def get_batch_details(batch_id: str):
 @app.get("/api/risk-summary")
 async def get_risk_summary():
     """Get risk distribution summary"""
+    # Check cache first
+    if _cache['risk_summary'] and _cache['cache_time']:
+        from datetime import datetime, timedelta
+        if datetime.now() - _cache['cache_time'] < timedelta(seconds=CACHE_DURATION):
+            return _cache['risk_summary']
+    
     if df_data is None:
         raise HTTPException(status_code=500, detail="Data not loaded")
     
@@ -467,27 +495,45 @@ async def get_risk_summary():
     # Risk by storage type
     risk_by_storage = df_latest.groupby('external_storage')['risk_probability'].agg(['mean', 'count']).to_dict('index')
     
-    return {
+    result = {
         "risk_distribution": risk_dist,
         "risk_by_location": risk_by_location,
         "risk_by_storage": risk_by_storage,
         "average_risk": float(risk_probs.mean()),
         "high_risk_percentage": float((risk_probs >= RISK_THRESHOLDS['high']).mean() * 100)
     }
+    
+    # Cache the result
+    from datetime import datetime
+    _cache['risk_summary'] = result
+    if not _cache['cache_time']:
+        _cache['cache_time'] = datetime.now()
+    
+    return result
 
 
 @app.get("/api/risk-trend")
 async def get_risk_trend():
     """Get risk trend over time"""
+    # Check cache first
+    if _cache['risk_trend'] and _cache['cache_time']:
+        from datetime import datetime, timedelta
+        if datetime.now() - _cache['cache_time'] < timedelta(seconds=CACHE_DURATION):
+            return _cache['risk_trend']
+    
     if df_data is None:
         raise HTTPException(status_code=500, detail="Data not loaded")
     
-    # Sample data points for trend (daily averages)
+    # Sample data points for trend (daily averages) - OPTIMIZED: Sample only last 30 days
     df_trend = df_data.copy()
     df_trend['date_only'] = df_trend['date'].dt.date
     
+    # Get unique dates and sample last 30 days for performance
+    all_dates = sorted(df_trend['date_only'].unique())
+    sampled_dates = all_dates[-30:] if len(all_dates) > 30 else all_dates
+    
     trend_data = []
-    for date in sorted(df_trend['date_only'].unique()):
+    for date in sampled_dates:
         day_data = df_trend[df_trend['date_only'] == date]
         X_day = prepare_features_for_prediction(day_data)
         risk_probs = models['best'].predict_proba(X_day)[:, 1]
@@ -499,7 +545,15 @@ async def get_risk_trend():
             "num_observations": int(len(day_data))
         })
     
-    return {"trend": trend_data}
+    result = {"trend": trend_data}
+    
+    # Cache the result
+    from datetime import datetime
+    _cache['risk_trend'] = result
+    if not _cache['cache_time']:
+        _cache['cache_time'] = datetime.now()
+    
+    return result
 
 
 # ============================================================================
@@ -688,9 +742,61 @@ async def get_recommendation(batch_id: str):
 # HELPER FUNCTIONS
 # ============================================================================
 
+def engineer_features(df: pd.DataFrame) -> pd.DataFrame:
+    """Engineer features from raw data - must match training pipeline"""
+    df_prep = df.copy()
+    
+    # Ensure date is datetime
+    if 'date' in df_prep.columns:
+        df_prep['date'] = pd.to_datetime(df_prep['date'])
+        
+        # 1. Basic temporal features
+        df_prep['hour'] = df_prep['date'].dt.hour
+        df_prep['day_of_week'] = df_prep['date'].dt.dayofweek
+        df_prep['is_weekend'] = (df_prep['day_of_week'] >= 5).astype(int)
+    else:
+        # Set defaults if date not available
+        df_prep['hour'] = 12
+        df_prep['day_of_week'] = 1
+        df_prep['is_weekend'] = 0
+    
+    # 2. Temperature features
+    df_prep['temp_diff'] = df_prep['room_temp_reading'] - df_prep['thermal_shipper_temp_reading']
+    df_prep['shipper_temp_too_high'] = (df_prep['thermal_shipper_temp_reading'] > 8).astype(int)
+    df_prep['shipper_temp_too_low'] = (df_prep['thermal_shipper_temp_reading'] < 2).astype(int)
+    df_prep['room_temp_high'] = (df_prep['room_temp_reading'] > 25).astype(int)
+    df_prep['humidity_high'] = (df_prep['room_humidity_reading'] > 60).astype(int)
+    df_prep['humidity_low'] = (df_prep['room_humidity_reading'] < 30).astype(int)
+    
+    # 3. Expiry-related features
+    df_prep['is_expired'] = (df_prep['item_expiry_hours'] < 0).astype(int)
+    df_prep['near_expiry'] = ((df_prep['item_expiry_hours'] >= 0) & (df_prep['item_expiry_hours'] < 24)).astype(int)
+    df_prep['expiry_critical'] = (df_prep['item_expiry_hours'] < 24).astype(int)
+    df_prep['days_until_expiry'] = df_prep['item_expiry_hours'] / 24
+    df_prep['weeks_until_expiry'] = df_prep['item_expiry_hours'] / 168
+    
+    # 4. Cumulative exposure features
+    df_prep['has_oob_exposure'] = (df_prep['out_of_bound_temperature_hours'] > 0).astype(int)
+    df_prep['oob_exposure_high'] = (df_prep['out_of_bound_temperature_hours'] > 24).astype(int)
+    
+    # Calculate total storage time
+    df_prep['total_storage_time'] = (
+        df_prep['ultra_low_temperature_freezer_hours'] + 
+        df_prep['refrigeration_temperature_hours'] + 
+        df_prep['out_of_bound_temperature_hours']
+    )
+    
+    df_prep['oob_exposure_ratio'] = df_prep['out_of_bound_temperature_hours'] / (df_prep['total_storage_time'] + 1)
+    df_prep['ultra_low_ratio'] = df_prep['ultra_low_temperature_freezer_hours'] / (df_prep['total_storage_time'] + 1)
+    df_prep['refrigeration_ratio'] = df_prep['refrigeration_temperature_hours'] / (df_prep['total_storage_time'] + 1)
+    
+    return df_prep
+
+
 def prepare_features_for_prediction(df: pd.DataFrame) -> pd.DataFrame:
     """Prepare features for model prediction"""
-    df_prep = df.copy()
+    # First, engineer features from raw data
+    df_prep = engineer_features(df)
     
     # Encode categorical features
     for col in feature_names['categorical_features']:
