@@ -5,6 +5,9 @@ import Prediction from './pages/Prediction';
 import BatchAnalysis from './pages/BatchAnalysis';
 import Analytics from './pages/Analytics';
 import LiveRisk from './pages/LiveRisk';
+import ModelPerformance from './pages/ModelPerformance';
+import AIInsights from './pages/AIInsights';
+import About from './pages/About';
 
 function App() {
   return (
@@ -16,6 +19,9 @@ function App() {
           <Route path="batches" element={<BatchAnalysis />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="live-risk" element={<LiveRisk />} />
+          <Route path="model-performance" element={<ModelPerformance />} />
+          <Route path="ai-insights" element={<AIInsights />} />
+          <Route path="about" element={<About />} />
         </Route>
       </Routes>
     </Router>
