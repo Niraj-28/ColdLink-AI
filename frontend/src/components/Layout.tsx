@@ -7,9 +7,7 @@ import {
   AlertTriangle,
   Thermometer,
   CircleDot,
-  Award,
-  Brain,
-  Info
+  Award
 } from 'lucide-react';
 
 const Layout = () => {
@@ -22,8 +20,6 @@ const Layout = () => {
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Live Monitor', path: '/live-risk', icon: AlertTriangle },
     { name: 'Model Performance', path: '/model-performance', icon: Award },
-    { name: 'AI Insights', path: '/ai-insights', icon: Brain },
-    { name: 'About', path: '/about', icon: Info },
   ];
 
   const isActive = (path: string) => {
