@@ -6,18 +6,35 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import StatsCard from '../components/StatsCard';
 
-interface ModelMetrics {
-  [key: string]: {
+interface ModelMetricsResponse {
+  best_model: string;
+  metrics: {
     accuracy: number;
     precision: number;
     recall: number;
     f1_score: number;
     roc_auc: number;
   };
+  all_models: {
+    [key: string]: {
+      accuracy: number;
+      precision: number;
+      recall: number;
+      f1_score: number;
+      roc_auc: number;
+    };
+  };
+  training_info?: {
+    training_date: string;
+    train_size: number;
+    val_size: number;
+    test_size: number;
+    num_features: number;
+  };
 }
 
 const ModelPerformance = () => {
-  const [metrics, setMetrics] = useState<ModelMetrics | null>(null);
+  const [metricsData, setMetricsData] = useState<ModelMetricsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +47,7 @@ const ModelPerformance = () => {
       setLoading(true);
       setError(null);
       const data = await apiService.getModelMetrics();
-      setMetrics(data);
+      setMetricsData(data);
     } catch (err) {
       setError('Failed to load model metrics');
       console.error(err);
@@ -41,10 +58,12 @@ const ModelPerformance = () => {
 
   if (loading) return <LoadingSpinner message="Loading model performance metrics..." />;
   if (error) return <ErrorMessage message={error} />;
-  if (!metrics) return null;
+  if (!metricsData) return null;
+
+  const { metrics, all_models, best_model } = metricsData;
 
   // Prepare comparison data for bar chart
-  const comparisonData = Object.entries(metrics).map(([model, data]) => ({
+  const comparisonData = Object.entries(all_models).map(([model, data]) => ({
     model: model.replace(/_/g, ' ').toUpperCase(),
     accuracy: (data.accuracy * 100).toFixed(1),
     precision: (data.precision * 100).toFixed(1),
@@ -53,16 +72,13 @@ const ModelPerformance = () => {
     roc_auc: (data.roc_auc * 100).toFixed(1),
   }));
 
-  // Prepare radar chart data for best model comparison
-  const bestModelName = Object.keys(metrics)[0];
-  const bestModel = metrics[bestModelName];
-  
+  // Prepare radar chart data for best model
   const radarData = [
-    { metric: 'Accuracy', value: bestModel.accuracy * 100 },
-    { metric: 'Precision', value: bestModel.precision * 100 },
-    { metric: 'Recall', value: bestModel.recall * 100 },
-    { metric: 'F1-Score', value: bestModel.f1_score * 100 },
-    { metric: 'ROC-AUC', value: bestModel.roc_auc * 100 },
+    { metric: 'Accuracy', value: metrics.accuracy * 100 },
+    { metric: 'Precision', value: metrics.precision * 100 },
+    { metric: 'Recall', value: metrics.recall * 100 },
+    { metric: 'F1-Score', value: metrics.f1_score * 100 },
+    { metric: 'ROC-AUC', value: metrics.roc_auc * 100 },
   ];
 
   return (
@@ -77,27 +93,35 @@ const ModelPerformance = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatsCard
           title="Accuracy"
-          value={`${(bestModel.accuracy * 100).toFixed(1)}%`}
+          value={`${(metrics.accuracy * 100).toFixed(1)}%`}
           icon={Target}
           color="primary"
         />
         <StatsCard
           title="Precision"
-          value={`${(bestModel.precision * 100).toFixed(1)}%`}
+          value={`${(metrics.precision * 100).toFixed(1)}%`}
           icon={Award}
           color="success"
         />
         <StatsCard
           title="Recall"
-          value={`${(bestModel.recall * 100).toFixed(1)}%`}
+          value={`${(metrics.recall * 100).toFixed(1)}%`}
           icon={Activity}
           color="warning"
         />
         <StatsCard
           title="F1-Score"
-          value={`${(bestModel.f1_score * 100).toFixed(1)}%`}
+          value={`${(metrics.f1_score * 100).toFixed(1)}%`}
           icon={TrendingUp}
           color="primary"
+        />
+        <StatsCard
+          title="ROC-AUC"
+          value={`${(metrics.roc_auc * 100).toFixed(1)}%`}
+          icon={AlertCircle}
+          color="success"
+        />
+      </div>
         />
         <StatsCard
           title="ROC-AUC"
@@ -132,7 +156,7 @@ const ModelPerformance = () => {
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
             Best Model Performance Profile
             <span className="ml-2 text-sm font-normal text-primary-600">
-              ({bestModelName.replace(/_/g, ' ').toUpperCase()})
+              ({best_model})
             </span>
           </h3>
           <ResponsiveContainer width="100%" height={350}>
@@ -175,7 +199,7 @@ const ModelPerformance = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {Object.entries(metrics).map(([model, data], index) => (
+              {Object.entries(all_models).map(([model, data], index) => (
                 <tr key={model} className={index === 0 ? 'bg-primary-50' : ''}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
