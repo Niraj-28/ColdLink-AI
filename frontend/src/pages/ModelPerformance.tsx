@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { Award, TrendingUp, Target, Activity, AlertCircle } from 'lucide-react';
 import { apiService } from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -65,11 +65,11 @@ const ModelPerformance = () => {
   // Prepare comparison data for bar chart
   const comparisonData = Object.entries(all_models).map(([model, data]) => ({
     model: model.replace(/_/g, ' ').toUpperCase(),
-    accuracy: (data.accuracy * 100).toFixed(1),
-    precision: (data.precision * 100).toFixed(1),
-    recall: (data.recall * 100).toFixed(1),
-    f1_score: (data.f1_score * 100).toFixed(1),
-    roc_auc: (data.roc_auc * 100).toFixed(1),
+    accuracy: parseFloat((data.accuracy * 100).toFixed(1)),
+    precision: parseFloat((data.precision * 100).toFixed(1)),
+    recall: parseFloat((data.recall * 100).toFixed(1)),
+    f1_score: parseFloat((data.f1_score * 100).toFixed(1)),
+    roc_auc: parseFloat((data.roc_auc * 100).toFixed(1)),
   }));
 
   // Prepare radar chart data for best model
@@ -118,14 +118,6 @@ const ModelPerformance = () => {
         <StatsCard
           title="ROC-AUC"
           value={`${(metrics.roc_auc * 100).toFixed(1)}%`}
-          icon={AlertCircle}
-          color="success"
-        />
-      </div>
-        />
-        <StatsCard
-          title="ROC-AUC"
-          value={`${(bestModel.roc_auc * 100).toFixed(1)}%`}
           icon={AlertCircle}
           color="success"
         />
